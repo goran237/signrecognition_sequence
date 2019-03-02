@@ -1,6 +1,6 @@
 from src.utils.data.importer.DataImporter import import_data
+from src.utils.data.process.DataHelper import DataHelper
 from src.utils.data.process.DataProcessor import preprocess_images
-from utils.data.process.DataHelper import DataHelper
 import sys
 
 

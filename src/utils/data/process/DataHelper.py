@@ -21,9 +21,11 @@ class DataHelper:
             for pic_name in csv_info['Filename']:
                 current_image_path = root + '/' + folder_name_resized + '/' + pic_name
                 np_image = np.array(Image.open(current_image_path))
-                #TODO: normalize the images
-                self.training_images.append(np_image)
-                #TODO: randomize images
+                norm_image = np.array((np_image-np.min(np_image))/(np.max(np_image)-np.min(np_image)))
+                self.training_images.append(norm_image)
+
+    #TODO: randomize images
+    #TODO: make the batches method
 
         print('All images collected')
 

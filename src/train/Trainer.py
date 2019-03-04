@@ -41,10 +41,8 @@ def perform_train():
             if i%100 == 0:
                 print('Currently on step {}'.format(i))
                 print('Accuracy is:')
-                logger.debug('Currently on step {}'.format(i))
                 matches = tf.equal(tf.argmax(model.y_pred, 1), tf.argmax(y_true, 1))
                 acc = tf.reduce_mean(tf.cast(matches, tf.float32))
-                logger.debug('Accuracy: ', acc)
                 print(sess.run(acc, feed_dict={x: data_helper.X_test, y_true: data_helper.y_test, hold_prob: 1.0}))
                 print('\n')
 

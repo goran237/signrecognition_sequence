@@ -61,9 +61,15 @@ class DataHelper:
 
 
     def next_batch(self, batch_size,pic_dim):
-        x = self.X_train[self.i: self.i+batch_size].reshape(batch_size, pic_dim, pic_dim, 3)
-        y = self.y_train[self.i: self.i + batch_size]
-        self.i = (self.i + batch_size) % len(self.X_train)
+        batch = self.X_train[self.i: self.i + batch_size]
+        if (len(batch) %100 == 0):
+            x = self.X_train[self.i: self.i + batch_size].reshape(batch_size, pic_dim, pic_dim, 3)
+            y = self.y_train[self.i: self.i + batch_size]
+            self.i = (self.i + batch_size) % len(self.X_train)
+        else:
+            x = self.X_train[self.i: self.i + batch_size].reshape(-1, pic_dim, pic_dim, 3)
+            y = self.y_train[self.i: self.i + batch_size]
+            self.i = (self.i + batch_size) % len(self.X_train)
         return x, y
 
     # TODO: make the batches method

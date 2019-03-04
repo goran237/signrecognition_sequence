@@ -15,9 +15,11 @@ logger.addHandler(handler)
 def import_data():
     url = 'http://benchmark.ini.rub.de/Dataset/GTSRB_Final_Training_Images.zip'
     if not os.path.exists('utils/data/GTSRB/Final_Training/Images'):
+        logger.info('Downloading images...')
         r = requests.get(url, stream=True)
         z = zipfile.ZipFile(io.BytesIO(r.content))
-        z.extractall('.')
+        logger.info('Extracting images...')
+        z.extractall('./utils/data/')
         logger.info('Data extracted successfully')
     else:
         logger.info('Data already imported')

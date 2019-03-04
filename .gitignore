@@ -1,0 +1,12 @@
+# ignore the generated images
+src/utils/data/GTSRB
+
+# ignore logs
+*.txt
+*.log
+
+# pycharm files
+*.pyc
+
+# idea folder
+.idea/

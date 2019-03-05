@@ -15,12 +15,11 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 def perform_train():
-    epochs = 10
+    epochs = 3
     pic_dim = 48
     num_labels = 43
     num_channels = 3
     learning_rate = 0.001
-    num_steps = 5000
     batch_size = 100
     display_freq = 100
     logs_path = "./logs"
@@ -71,7 +70,7 @@ def perform_train():
             print("Epoch: {0}, validation loss: {1:.2f}, validation accuracy: {2:.01%}".
                   format(epoch + 1, loss_valid, acc_valid))
             print('---------------------------------------------------------')
-        saver.save(sess,'my_test_model',global_step=1000)
+            saver.save(sess,'models/my_test_model')
 
         X_test = data_helper.X_test
         y_test = data_helper.y_test

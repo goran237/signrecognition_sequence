@@ -78,6 +78,9 @@ def perform_train():
         print('---------------------------------------------------------')
         print("Test loss: {0:.2f}, test accuracy: {1:.01%}".format(loss_test, acc_test))
         print('---------------------------------------------------------')
+        feed_dict_test = {x: data_helper.X_test, y_true: data_helper.y_test, hold_prob: 1.0}
+        cls_pred = sess.run(cls_prediction, feed_dict=feed_dict_test)
+
 
 
     print('Training completed.')

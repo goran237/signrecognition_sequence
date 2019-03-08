@@ -86,7 +86,7 @@ class DataHelper:
         print('Datasets for test created.')
 
     def set_up_subset_test_images_and_labels(self):
-        root_test = './utils/data/GTSRB/Final_Test/Images/subset'
+        root_test = './utils/data/GTSRB/Final_Test/subset'
         all_test_images = []
         all_test_one_hot_labels = []
         print('Creating test datasets...')

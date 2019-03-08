@@ -26,7 +26,6 @@ def perform_test():
 
         tf.local_variables_initializer().run()
         cls_pred = sess.run(prediction, feed_dict={x:data_helper.X_test, y_true:data_helper.y_test,hold_prob:1.0})
-        pred_status = ''
         for i in range(len(cls_pred)):
             correct_label = np.array(data_helper.y_test[i])
             if np.argmax(correct_label) == cls_pred[i]:

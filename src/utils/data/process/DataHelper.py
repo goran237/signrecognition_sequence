@@ -85,6 +85,27 @@ class DataHelper:
         logger.info('All test images have been processed')
         print('Datasets for test created.')
 
+    def set_up_subset_test_images_and_labels(self):
+        root_test = './utils/data/GTSRB/Final_Test/Images/subset'
+        all_test_images = []
+        all_test_one_hot_labels = []
+        print('Creating test datasets...')
+        logger.info('Processing training signs... ')
+        folder_name_resized = root_test + '/resized/'
+        csv_file_path = root_test + '/GT-final_test_subset.csv'
+        csv_info = pd.read_csv(csv_file_path, delimiter=';')
+        for pic_name in csv_info['Filename']:
+            current_image_path = root_test+'/resized/'+pic_name
+            np_image = np.array(Image.open(current_image_path))
+            all_test_images.append(np_image)
+        for label in csv_info['ClassId']:
+            all_test_one_hot_labels.append(label)
+        all_test_one_hot_labels = one_hot_encode(all_test_one_hot_labels,43)
+        self.X_test = all_test_images
+        self.y_test = all_test_one_hot_labels
+        logger.info('All test images have been processed')
+        print('Datasets for test created.')
+
 
     def next_batch(self, batch_size, pic_dim):
         batch = self.X_train[self.i: self.i + batch_size]

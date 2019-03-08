@@ -1,9 +1,9 @@
 from src.utils.data.importer.DataImporter import import_training_data,import_test_data
-from src.utils.data.process.DataHelper import DataHelper
 from src.utils.data.process.DataProcessor import preprocess_training_images,preprocess_test_images
-from src.model.PlaceholderGenerator import generate_placeholders
 from src.train.Trainer import perform_train
 import sys
+
+from test.Tester import perform_test
 
 
 def main():
@@ -12,6 +12,7 @@ def main():
     preprocess_training_images()
     preprocess_test_images()
     perform_train()
+    perform_test()
 
 
 if __name__ == '__main__':

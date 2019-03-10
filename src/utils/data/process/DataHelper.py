@@ -27,6 +27,7 @@ class DataHelper:
 
     def __init__(self):
         self.i = 0
+        self.i_test = 0
         self.X_train = []
         self.y_train = []
         self.X_valid = []
@@ -109,7 +110,7 @@ class DataHelper:
 
     def next_batch(self, batch_size, pic_dim):
         batch = self.X_train[self.i: self.i + batch_size]
-        if (len(batch) % 100 == 0):
+        if (len(batch) % batch_size == 0):
             x = self.X_train[self.i: self.i + batch_size].reshape(batch_size, pic_dim, pic_dim, 3)
             y = self.y_train[self.i: self.i + batch_size]
             self.i = (self.i + batch_size) % len(self.X_train)
@@ -117,6 +118,19 @@ class DataHelper:
             x = self.X_train[self.i: self.i + batch_size].reshape(-1, pic_dim, pic_dim, 3)
             y = self.y_train[self.i: self.i + batch_size]
             self.i = (self.i + batch_size) % len(self.X_train)
+        return x, y
+
+
+    def next_batch_test(self, batch_size, pic_dim):
+        batch = self.X_test[self.i_test: self.i_test + batch_size]
+        if (len(batch) % batch_size == 0):
+            x = np.array(self.X_test[self.i_test: self.i_test + batch_size]).reshape(batch_size, pic_dim, pic_dim, 3)
+            y = np.array(self.y_test[self.i_test: self.i_test + batch_size])
+            self.i_test = (self.i_test + batch_size) % len(self.X_test)
+        else:
+            x = np.array(self.X_test[self.i_test: self.i_test + batch_size]).reshape(-1, pic_dim, pic_dim, 3)
+            y = np.array(self.y_test[self.i_test: self.i_test + batch_size])
+            self.i_test = (self.i_test + batch_size) % len(self.X_test)
         return x, y
 
     # TODO: make the batches method

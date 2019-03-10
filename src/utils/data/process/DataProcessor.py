@@ -36,8 +36,8 @@ def process_signs_in_folder(folder_name):
     if not os.path.exists(folder_resize):
         os.makedirs(folder_resize)
         logger.info('Folder ' + folder_resize + 'created')
+        print('Processing training images...')
         for pic_name in csv_info['Filename']:
-            print('Processing training images...')
             current_image_path = root + '/' + folder_name + '/' + pic_name
             current_image = resize_image(current_image_path, common_dim)
             current_image.save(folder_resize + pic_name, 'PPM')

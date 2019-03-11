@@ -2,13 +2,13 @@ from model.HelperFunctions import *
 from model.Model import Model
 
 def create_cnn_model(input_placeholder, hold_prob_placeholder):
-    img_shape = (48, 48, 1)
+    img_shape = (96, 96, 1)
     current_img_dim = img_shape[0]
     num_channel = 3
     num_labels = 43
 
     layer_1_filter_shape = (4, 4)
-    layer_1_num_of_out_feats = 48
+    layer_1_num_of_out_feats = 96
     layer_1_pool_factor= 2
 
     layer_2_filter_shape = (4, 4)

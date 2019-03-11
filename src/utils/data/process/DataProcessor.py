@@ -13,7 +13,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-common_dim = 48
+common_dim = 96
 
 def resize_image(path, common_dim):
     image = Image.open(path)

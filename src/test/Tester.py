@@ -4,10 +4,10 @@ import numpy as np
 
 from utils.data.process.DataHelper import DataHelper
 
-pic_dim = 48
+pic_dim = 96
 num_labels = 43
 num_channels = 3
-batch_size = 100
+batch_size = 10
 display_freq = 100
 
 def perform_test():
@@ -46,7 +46,7 @@ def perform_test():
                 cls_pred_values.append(cls_pred)
             print('---------------------------------------------------------')
             print('Average test loss: {0:.2f}'.format(avg_loss / num_test_iter))
-            print('Average test accurracy: {0: .01%}'.format(avg_acc / num_test_iter))
+            print('Average test accurracy: {0:.05%}%'.format(avg_acc / num_test_iter))
             print('---------------------------------------------------------')
             #cls_pred = sess.run(prediction, feed_dict={x:data_helper.X_test, y_true:data_helper.y_test,hold_prob:1.0})
             # for i in range(len(cls_pred_values)):

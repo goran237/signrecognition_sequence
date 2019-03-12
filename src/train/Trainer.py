@@ -17,11 +17,11 @@ logger.addHandler(handler)
 
 def perform_train():
     epochs = 10
-    pic_dim = 96
+    pic_dim = 48
     num_labels = 43
     num_channels = 3
     learning_rate = 0.001
-    batch_size = 50
+    batch_size = 100
     display_freq = 100
     logs_path = "./logs"
 
@@ -48,7 +48,7 @@ def perform_train():
         saver = tf.train.Saver(max_to_keep=4)
         init = tf.global_variables_initializer()
         merged = tf.summary.merge_all()
-        loss_file_obj = open('loss.csv','w')
+        loss_file_obj = open('loss.csv','a')
         loss_file_obj.truncate()
         loss_file_obj.close()
         print('Training in progress...')
@@ -71,8 +71,9 @@ def perform_train():
                         summary_writer.add_summary(summary_tr, global_step)
                         print("iter {0:3d}:\t Loss={1:.2f},\tTraining Accuracy={2:.05%}".
                               format(iteration, loss_batch, acc_batch))
-                        with open('loss.csv', mode='w') as loss_file:
-                            loss_writer = csv.writer(loss_file,delimiter=',',quotechar ='"',quoting=csv.QUOTE_MINIMAL)
+                    if iteration % 10 == 0:
+                        with open('loss.csv', mode='a',newline='') as loss_file:
+                            loss_writer = csv.writer(loss_file,delimiter=';',quotechar ='"',quoting=csv.QUOTE_MINIMAL)
                             loss_writer.writerow([epoch,iteration,loss_batch])
                 feed_dict_valid = {x: data_helper.X_valid, y_true: data_helper.y_valid, hold_prob: 1.0}
                 loss_valid, acc_valid = sess.run([loss, accuracy], feed_dict=feed_dict_valid)

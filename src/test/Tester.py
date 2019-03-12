@@ -4,10 +4,10 @@ import numpy as np
 
 from utils.data.process.DataHelper import DataHelper
 
-pic_dim = 96
+pic_dim = 48
 num_labels = 43
 num_channels = 3
-batch_size = 10
+batch_size = 100
 display_freq = 100
 
 def perform_test():

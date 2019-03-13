@@ -13,6 +13,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+common_dim = 48
 
 def resize_image(path, common_dim):
     image = Image.open(path)
@@ -22,7 +23,7 @@ def resize_image(path, common_dim):
     processed_im = image
     if height != width:
         processed_im = image.crop((0, 0, smaller_dim, smaller_dim))
-    if smaller_dim != 48:
+    if smaller_dim != common_dim:
         processed_im = processed_im.resize((common_dim, common_dim))
     return processed_im
 
@@ -35,17 +36,36 @@ def process_signs_in_folder(folder_name):
     if not os.path.exists(folder_resize):
         os.makedirs(folder_resize)
         logger.info('Folder ' + folder_resize + 'created')
+        print('Processing training images...')
         for pic_name in csv_info['Filename']:
             current_image_path = root + '/' + folder_name + '/' + pic_name
-            current_image = resize_image(current_image_path, 48)
+            current_image = resize_image(current_image_path, common_dim)
             current_image.save(folder_resize + pic_name, 'PPM')
 
         logger.info('Processed images created in '+folder_resize)
     else:
-        logger.info('Folder ' + folder_resize + 'already exists')
+        logger.info('Folder ' + folder_resize + ' already exists')
 
 
-def preprocess_images():
+def preprocess_training_images():
     for i in range(43):
         folder_name = format(i, '05d')
         process_signs_in_folder(folder_name)
+
+def preprocess_test_images():
+    root = './utils/data/GTSRB/Final_Test/Images'
+    csv_file_path =root+'/'+'GT-final_test.test.csv'
+    csv_info = pd.read_csv(csv_file_path,delimiter=';')
+    folder_resize = root+'/resized/'
+    if not os.path.exists(folder_resize):
+        os.makedirs(folder_resize)
+        logger.info('Folder ' + folder_resize + ' created')
+        print('Processing all test images...')
+        for pic_name in csv_info['Filename']:
+            current_image_path = root + '/' + pic_name
+            current_image = resize_image(current_image_path,common_dim)
+            current_image.save(folder_resize+pic_name, 'PPM')
+        logger.info('Processed images created in '+folder_resize)
+    else:
+        logger.info('Folder ' + folder_resize + ' already exists')
+

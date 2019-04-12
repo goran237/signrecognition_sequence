@@ -95,10 +95,10 @@ def train():
     X_valid = np.array([load_image(im,IMAGE_SIZE) for im in seq.X_valid])
     y_valid = seq.y_valid
 
-    tensor_board = TensorBoard(log_dir='./Graph', histogram_freq=0, write_graph=True, write_images=True)
+    tensor_board = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
 
     callbacks = [
-        tf.keras.callbacks.ModelCheckpoint('./model.h5', verbose=1,save_best_only=True),
+        tf.keras.callbacks.ModelCheckpoint('./model/model.h5', verbose=1,save_best_only=True),
         tensor_board
     ]
 

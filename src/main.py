@@ -8,13 +8,14 @@ import os
 import numpy as np
 import pandas as pd
 import ast
+import zipfile
 import numpy as np
 import math
 import os
 import random
-from tensorflow.keras.preprocessing.image import img_to_array as img_to_array
-from tensorflow.keras.preprocessing.image import load_img as load_img
-from tensorflow.keras.utils import to_categorical
+from tensorflow.python.keras.preprocessing.image import img_to_array as img_to_array
+from tensorflow.python.keras.preprocessing.image import load_img as load_img
+from tensorflow.python.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 import cv2
 
@@ -25,10 +26,27 @@ def main():
 
 def load_image(image_path, size):
     img = cv2.imread(image_path)
-    resized = cv2.resize(src=img, dsize=(32, 32))
+    resized = cv2.resize(src=img, dsize=(IMAGE_SIZE, IMAGE_SIZE))
     return img_to_array(resized / 255)
 
+def unzip_data():
+    if not os.path.exists('data/test/jpg'):
+        print('Extracting test images...')
+        z = zipfile.ZipFile('./data/test/test_data.zip')
+        z.extractall('./data/test')
+        print('Extracted test data.')
+        print('--------------------------')
+        print('Extracting train images...')
+        z = zipfile.ZipFile('./data/train/train_data.zip')
+        z.extractall('./data/train')
+        print('Extracted train data.')
+        print('--------------------------')
+
+
 def train():
+
+    unzip_data()
+
     image_size = IMAGE_SIZE
     image_input = Input(shape=(image_size, image_size, 3), name='input_layer')
 
@@ -101,11 +119,11 @@ def train():
         tf.keras.callbacks.ModelCheckpoint('./model/model.h5', verbose=1,save_best_only=True),
         tensor_board
     ]
-
+    print('--------------------------')
     print("Performing training...")
 
     model.fit_generator(generator=seq,
-                        epochs=1,
+                        epochs=30,
                         use_multiprocessing=False,
                         workers=1,
                         callbacks=callbacks,
@@ -121,7 +139,7 @@ def train():
 
     test_set = SignRecognitionTestSet('./data/test/jpg/GT-final_test.csv',
                                       './data/test/jpg')
-
+    print('--------------------------')
     print("Performing test...")
 
     model.evaluate(test_set.test_images,test_set.labels)[1]

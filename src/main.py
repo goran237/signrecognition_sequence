@@ -1,23 +1,19 @@
-import tensorflow
-
-import tensorflow as tf
-from tensorflow.python.keras.callbacks import TensorBoard
-from tensorflow.python.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout, BatchNormalization
-from tensorflow.python.keras import Model, Input
-import os
-import numpy as np
-import pandas as pd
-import ast
-import zipfile
-import numpy as np
 import math
 import os
 import random
-from tensorflow.python.keras.preprocessing.image import img_to_array as img_to_array
-from tensorflow.python.keras.preprocessing.image import load_img as load_img
-from tensorflow.python.keras.utils import to_categorical
-from sklearn.model_selection import train_test_split
+import zipfile
+
 import cv2
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from imgaug import augmenters as iaa
+from sklearn.model_selection import train_test_split
+from tensorflow.python.keras import Input
+from tensorflow.python.keras.callbacks import TensorBoard
+from tensorflow.python.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
+from tensorflow.python.keras.preprocessing.image import img_to_array as img_to_array
+from tensorflow.python.keras.utils import to_categorical
 
 IMAGE_SIZE = 32
 
@@ -26,8 +22,43 @@ def main():
 
 def load_image(image_path, size):
     img = cv2.imread(image_path)
+    img = seq.augment_image(img)
+
     resized = cv2.resize(src=img, dsize=(IMAGE_SIZE, IMAGE_SIZE))
     return img_to_array(resized / 255)
+
+seq = iaa.Sequential(
+    [
+        # iaa.Fliplr(0.5), # horizontally flip 50% of the images
+
+        iaa.Affine(
+            scale={"x": (0.7, 1.0), "y": (0.7, 1.0)},
+            # translate_percent={"x": (-0.1, 0.1), "y": (-0.1, 0.1)}, # translate by -20 to +20 percent (per axis)
+            rotate=(-15, 15),
+            shear=(-7, 7),
+            order=[0, 1],  # use nearest neighbour or bilinear interpolation (fast)
+            cval=255,  # (0, 255), # if mode is constant, use a cval between 0 and 255
+            mode='constant'
+        ),
+
+        iaa.SomeOf((0, 3),
+            [
+                iaa.GaussianBlur((0, 0.95)),  # blur images with a sigma of 0 to 3.0
+                iaa.Sharpen(alpha=(0, 0.10), lightness=(0.85, 1.25)),  # sharpen images
+                #iaa.Emboss(alpha=(0, 0.10), strength=(0, 0.3)), # emboss images
+                iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.025 * 255), per_channel=False),
+                # add gaussian noise to images
+                #iaa.CoarseDropout((0.05, 0.1), size_percent=(0.50, 0.70), per_channel=False),
+                # iaa.Add((-25, 25), per_channel=False), # change brightness of images (by -10 to 10 of original value)
+                #iaa.Multiply((0.75, 1.25), per_channel=False),
+                # iaa.ContrastNormalization((0.85, 1.15), per_channel=False), # improve or worsen the contrast
+                # distorsion
+                #iaa.ElasticTransformation(alpha=(0.5, 2.0), sigma=0.25),
+            ]
+        )
+    ],
+    random_order=True
+)
 
 def unzip_data():
     if not os.path.exists('data/test/jpg'):

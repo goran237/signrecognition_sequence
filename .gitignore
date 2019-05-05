@@ -1,5 +1,8 @@
 # ignore the generated images
 src/utils/data/GTSRB
+src/data/
+src/logs/
+src/model/
 
 # ignore logs
 *.txt

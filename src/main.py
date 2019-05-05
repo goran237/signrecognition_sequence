@@ -14,6 +14,7 @@ from tensorflow.python.keras.callbacks import TensorBoard
 from tensorflow.python.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
 from tensorflow.python.keras.preprocessing.image import img_to_array as img_to_array
 from tensorflow.python.keras.utils import to_categorical
+from tensorflow.python.keras.optimizers import Adam
 
 IMAGE_SIZE = 32
 
@@ -22,7 +23,9 @@ def main():
 
 def load_image(image_path, size):
     img = cv2.imread(image_path)
-    img = seq.augment_image(img)
+    do_aug = np.random.randint(0, 2)
+    if do_aug:
+        img = seq.augment_image(img)
 
     resized = cv2.resize(src=img, dsize=(IMAGE_SIZE, IMAGE_SIZE))
     return img_to_array(resized / 255)
@@ -99,7 +102,7 @@ def train():
 
     model = tf.keras.Model(inputs=image_input,outputs = [output])
 
-    model.compile(optimizer='adam',
+    model.compile(optimizer=Adam(1e-3),
                   loss={'output_layer': 'categorical_crossentropy'},
                   metrics=['accuracy'])
 

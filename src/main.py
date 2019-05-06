@@ -79,6 +79,7 @@ def unzip_data():
 
 def train():
 
+
     unzip_data()
 
     image_size = IMAGE_SIZE

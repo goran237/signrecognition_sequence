@@ -16,19 +16,19 @@ from tensorflow.python.keras.preprocessing.image import img_to_array as img_to_a
 from tensorflow.python.keras.utils import to_categorical
 from tensorflow.python.keras.optimizers import Adam
 
-IMAGE_SIZE = 32
+IMAGE_SIZE = 48
 
 def main():
     train()
 
 def load_image(image_path, size):
     img = cv2.imread(image_path)
-    do_aug = np.random.randint(0, 2)
-    if do_aug:
-        img = seq.augment_image(img)
-
+    # do_aug = np.random.randint(0, 2)
+    # if do_aug:
+    #     img = seq.augment_image(img)
+    #
     resized = cv2.resize(src=img, dsize=(IMAGE_SIZE, IMAGE_SIZE))
-    return img_to_array(resized / 255)
+    return img_to_array(img / 255)
 
 seq = iaa.Sequential(
     [
@@ -76,16 +76,28 @@ def unzip_data():
         print('Extracted train data.')
         print('--------------------------')
 
+def unzip_data_ppm():
+    if not os.path.exists('data/test/ppm'):
+        print('Extracting test ppm images...')
+        z = zipfile.ZipFile('./data/test/test_data_ppm.zip')
+        z.extractall('./data/test/ppm')
+        print('Extracted test ppm data.')
+        print('--------------------------')
+    if not os.path.exists('data/train/ppm'):
+        print('Extracting train ppm images...')
+        z = zipfile.ZipFile('./data/train/train_data_ppm.zip')
+        z.extractall('./data/train/ppm')
+        print('Extracted train ppm data.')
+        print('--------------------------')
 
 def train():
-
-
     unzip_data()
+    unzip_data_ppm()
 
     image_size = IMAGE_SIZE
     image_input = Input(shape=(image_size, image_size, 3), name='input_layer')
 
-    conv_1 = Conv2D(filters=32, kernel_size=(3, 3), padding='same', activation='relu')(image_input)
+    conv_1 = Conv2D(filters=48, kernel_size=(3, 3), padding='same', activation='relu')(image_input)
     conv_1_pooled = MaxPooling2D(padding='same')(conv_1)
 
     conv_2 = Conv2D(filters=32, kernel_size=(3, 3), padding='same', activation='relu')(conv_1_pooled)
@@ -141,8 +153,8 @@ def train():
             batch_y = self.get_batch_labels(idx)
             return batch_x, batch_y
 
-    seq = SignRecognitionSequence('./data/train/jpg/signrecognition_data_train.csv',
-                                  './data/train/jpg/',
+    seq = SignRecognitionSequence('./data/train/ppm/signrecognition_data_train.csv',
+                                  './data/train/ppm/',
                                   im_size=IMAGE_SIZE,
                                   batch_size=32)
     X_valid = np.array([load_image(im,IMAGE_SIZE) for im in seq.X_valid])
@@ -151,14 +163,14 @@ def train():
     tensor_board = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
 
     callbacks = [
-        tf.keras.callbacks.ModelCheckpoint('./model/model.h5', verbose=1,save_best_only=True),
+        #tf.keras.callbacks.ModelCheckpoint('./model/model.h5', verbose=1,save_best_only=True),
         tensor_board
     ]
     print('--------------------------')
     print("Performing training...")
 
     model.fit_generator(generator=seq,
-                        epochs=30,
+                        epochs=40,
                         use_multiprocessing=False,
                         workers=1,
                         callbacks=callbacks,
@@ -172,8 +184,8 @@ def train():
             self.image_list = self.df['Filename'].apply(lambda x: os.path.join(data_path,x)).tolist()
             self.test_images = np.array([load_image(im,IMAGE_SIZE) for im in self.image_list])
 
-    test_set = SignRecognitionTestSet('./data/test/jpg/GT-final_test.csv',
-                                      './data/test/jpg')
+    test_set = SignRecognitionTestSet('./data/test/ppm/GT-final_test.csv',
+                                      './data/test/ppm')
     print('--------------------------')
     print("Performing test...")
 

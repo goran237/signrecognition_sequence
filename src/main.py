@@ -67,7 +67,7 @@ def createModel():
 
     model = tf.keras.Model(inputs=image_input, outputs=[output])
 
-    model.compile(optimizer=Adam(1e-4),
+    model.compile(optimizer=rmsprop(1e-3),
                   loss={'output_layer': 'categorical_crossentropy'},
                   metrics=['accuracy'])
     return model
@@ -77,15 +77,15 @@ def train():
     seq =  SignRecognitionSequence('./data/train/ppm/signrecognition_data_train.csv',
                                   './data/train/ppm/',
                                   im_size=IMAGE_SIZE,
-                                  batch_size=64)
+                                  batch_size=32)
 
     X_valid = np.array([load_image(im) for im in seq.X_valid])
     y_valid = seq.y_valid
 
     tensor_board = TensorBoard(log_dir='logs', histogram_freq=0, write_graph=True, write_images=True)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,
-                                  patience=5, min_lr=0.0001)
-    early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.02, patience=3, verbose=1, mode='auto', baseline=None, restore_best_weights=True)
+                                  patience=5, min_lr=0.00001)
+    early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.02, patience=5, verbose=1, mode='auto', baseline=None, restore_best_weights=True)
 
     callbacks = [
         #tf.keras.callbacks.ModelCheckpoint('models/my_model.h5', verbose=1,save_best_only=True),

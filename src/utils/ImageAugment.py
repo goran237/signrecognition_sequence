@@ -23,6 +23,7 @@ def createAugmentator():
 def load_image(image_path):
     seq = createAugmentator()
     img = cv2.imread(image_path)
+    img = cv2.resize(img,(64,64))
     do_aug = np.random.randint(0, 2)
     if do_aug:
         img = seq.augment_image(img)

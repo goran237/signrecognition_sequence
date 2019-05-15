@@ -23,7 +23,7 @@ class SignRecognitionSequence(tf.keras.utils.Sequence):
         self.labels = to_categorical(self.labels)
         self.image_list = self.df['image_name'].apply(lambda x: os.path.join(data_path, x)).tolist()
         self.X_train, self.X_valid, self.y_train, self.y_valid = train_test_split(self.image_list, self.labels,
-                                                                                  test_size=0.10, random_state=42)
+                                                                                  test_size=0.20, random_state=42, stratify=self.labels)
 
     def __len__(self):
         return int(math.ceil(len(self.X_train) / float(self.batch_size)))

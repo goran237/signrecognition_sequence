@@ -35,7 +35,7 @@ def createModel():
     #conv_2 = Conv2D(filters=64, kernel_size=(3, 3), padding='same', activation='relu')(conv_2)
     conv_2_pooled = MaxPooling2D(padding='same')(conv_2)
 
-    conv_3 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_2_pooled)
+    conv_3 = Conv2D(filters=64, kernel_size=(3, 3), padding='same', activation='relu')(conv_2_pooled)
     #conv_3 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_3)
     conv_3_pooled = MaxPooling2D(padding='same')(conv_3)
 
@@ -43,13 +43,13 @@ def createModel():
     #conv_4 = Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv_4)
     conv_4_pooled = MaxPooling2D(padding='same')(conv_4)
 
-    conv_4 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_3_pooled)
+    #conv_5 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_4_pooled)
     #conv_4 = Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv_4)
-    conv_4_pooled = MaxPooling2D(padding='same')(conv_4)
+    #conv_5_pooled = MaxPooling2D(padding='same')(conv_5)
 
-    conv_5 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_4_pooled)
+    #conv_6 = Conv2D(filters=256, kernel_size=(3, 3), padding='same', activation='relu')(conv_5_pooled)
     #conv_4 = Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv_4)
-    conv_5_pooled = MaxPooling2D(padding='same')(conv_5)
+    #conv_6_pooled = MaxPooling2D(padding='same')(conv_6)
 
     conv_flattened = Flatten()(conv_4_pooled)
 
@@ -81,7 +81,7 @@ def train():
 
     tensor_board = TensorBoard(log_dir='logs', histogram_freq=0, write_graph=True, write_images=True)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,
-                                  patience=5, min_lr=0.00001)
+                                  patience=5, min_lr=0.000001)
     early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.02, patience=5, verbose=1, mode='auto', baseline=None, restore_best_weights=True)
 
     callbacks = [
@@ -94,7 +94,7 @@ def train():
     print("Performing training...")
     model = createModel()
     model.fit_generator(generator=seq,
-                        epochs=14,
+                        epochs=25,
                         use_multiprocessing=False,
                         workers=1,
                         callbacks=callbacks,

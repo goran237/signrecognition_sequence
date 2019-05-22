@@ -1,30 +1,18 @@
-import math
 import os
-import datetime
-import random
-import zipfile
 
-import cv2
 import numpy as np
 import pandas as pd
-import tensorflow
 import tensorflow as tf
-from imgaug import augmenters as iaa
-from sklearn.model_selection import train_test_split
 from tensorflow.python.keras import Input
 from tensorflow.python.keras.callbacks import TensorBoard, ReduceLROnPlateau, EarlyStopping
 from tensorflow.python.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
-from tensorflow.python.keras.preprocessing.image import img_to_array as img_to_array
-from tensorflow.python.keras.utils import to_categorical
-from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.optimizers import rmsprop
-from tensorflow.python.keras.applications import VGG16
+from tensorflow.python.keras.utils import to_categorical
 
-#from src.SignRecognitionSequence import SignRecognitionSequence
+# from src.SignRecognitionSequence import SignRecognitionSequence
 from src.utils.Cleaner import clean_logs
 from src.utils.DataExtractor import extractData
 from src.utils.ImageAugment import load_image
-import matplotlib.pyplot as plt
 
 IMAGE_SIZE = 64
 
@@ -39,25 +27,33 @@ def createModel():
 
     image_input = Input(shape=(image_size, image_size, 3), name='input_layer')
 
-    conv_1 = Conv2D(filters=16, kernel_size=(3, 3), padding='same', activation='relu')(image_input)
-    conv_1 = Conv2D(filters=32, kernel_size=(3, 3), padding='same', activation='relu')(conv_1)
+    conv_1 = Conv2D(filters=32, kernel_size=(3, 3), padding='same', activation='relu')(image_input)
+    #conv_1 = Conv2D(filters=32, kernel_size=(3, 3), padding='same', activation='relu')(conv_1)
     conv_1_pooled = MaxPooling2D(padding='same')(conv_1)
 
-    conv_2 = Conv2D(filters=32, kernel_size=(3, 3), padding='same', activation='relu')(conv_1_pooled)
-    conv_2 = Conv2D(filters=64, kernel_size=(3, 3), padding='same', activation='relu')(conv_2)
+    conv_2 = Conv2D(filters=64, kernel_size=(3, 3), padding='same', activation='relu')(conv_1_pooled)
+    #conv_2 = Conv2D(filters=64, kernel_size=(3, 3), padding='same', activation='relu')(conv_2)
     conv_2_pooled = MaxPooling2D(padding='same')(conv_2)
 
-    conv_3 = Conv2D(filters=64, kernel_size=(3, 3), padding='same', activation='relu')(conv_2_pooled)
-    conv_3 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_3)
+    conv_3 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_2_pooled)
+    #conv_3 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_3)
     conv_3_pooled = MaxPooling2D(padding='same')(conv_3)
 
-    conv_4 = Conv2D(filters=256, kernel_size=(3, 3), padding='same', activation='relu')(conv_3_pooled)
-    conv_4 = Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv_4)
+    conv_4 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_3_pooled)
+    #conv_4 = Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv_4)
     conv_4_pooled = MaxPooling2D(padding='same')(conv_4)
+
+    conv_4 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_3_pooled)
+    #conv_4 = Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv_4)
+    conv_4_pooled = MaxPooling2D(padding='same')(conv_4)
+
+    conv_5 = Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')(conv_4_pooled)
+    #conv_4 = Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')(conv_4)
+    conv_5_pooled = MaxPooling2D(padding='same')(conv_5)
 
     conv_flattened = Flatten()(conv_4_pooled)
 
-    dense_layer_1 = Dense(256, activation='relu')(conv_flattened)
+    dense_layer_1 = Dense(512, activation='relu')(conv_flattened)
     dense_layer_1_dropout = Dropout(0.2)(dense_layer_1)
 
     # dense_layer_2 = Dense(256, activation='relu')(dense_layer_1_dropout)
@@ -70,6 +66,7 @@ def createModel():
     model.compile(optimizer=rmsprop(1e-3),
                   loss={'output_layer': 'categorical_crossentropy'},
                   metrics=['accuracy'])
+    model.summary()
     return model
 
 def train():
@@ -90,44 +87,14 @@ def train():
     callbacks = [
         #tf.keras.callbacks.ModelCheckpoint('models/my_model.h5', verbose=1,save_best_only=True),
         tensor_board,
-        reduce_lr,
-        early_stopping
+        reduce_lr
     ]
 
     print('--------------------------')
     print("Performing training...")
-
-    # learning_rates = [1e-3, 1e-4, 1e-5]
-    # for lr in learning_rates:
-    #     root_dir = os.getcwd()+'\experiments\learning_rate'
-    #     dir_name = str(lr)+'_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    #     currentdir = os.path.join(root_dir,dir_name)
-    #     os.makedirs(currentdir)
-    #     model = createModel()
-    #     history = model.fit_generator(generator=seq,
-    #                     epochs=3,
-    #                     use_multiprocessing=False,
-    #                     workers=1,
-    #                     callbacks=callbacks,
-    #                     validation_data=(X_valid,y_valid))
-    #     loss = history.history['loss']
-    #     val_loss = history.history['val_loss']
-    #     accuracy = history.history['accuracy']
-    #
-    #     epochs = range(1, len(loss)+1)
-    #     plt.plot(epochs, loss, 'bo', label='Training loss')
-    #     plt.plot(epochs, val_loss, 'g', label='Validation loss')
-    #     plt.plot(epochs, accuracy, 'r', label='Accuracy')
-    #     plt.title('Training and validation loss')
-    #     plt.xlabel('Epochs')
-    #     plt.ylabel('Loss/Accurracy')
-    #     plt.legend()
-    #     plt.savefig('{0}/lr_acc_plot.png'.format(currentdir))
-    #
-    #     test(model)
     model = createModel()
     model.fit_generator(generator=seq,
-                        epochs=20,
+                        epochs=14,
                         use_multiprocessing=False,
                         workers=1,
                         callbacks=callbacks,

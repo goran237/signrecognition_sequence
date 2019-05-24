@@ -25,7 +25,7 @@ def load_image(image_path):
     img = cv2.imread(image_path)
     img = cv2.resize(img,(64,64))
     do_aug = np.random.randint(0, 2)
-    #if do_aug:
-    #    img = seq.augment_image(img)
+    if do_aug:
+        img = seq.augment_image(img)
 
     return img_to_array(img / 255)

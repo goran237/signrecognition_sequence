@@ -3,6 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+#import tqdm
+import matplotlib.pyplot as plt
 from tensorflow.python.keras import Input
 from tensorflow.python.keras.callbacks import TensorBoard, ReduceLROnPlateau, EarlyStopping
 from tensorflow.python.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Activation
@@ -14,14 +16,22 @@ from tensorflow.python.layers.normalization import BatchNormalization
 from src.utils.Cleaner import clean_logs
 from src.utils.DataExtractor import extractData
 from src.utils.ImageAugment import load_image
+from src.utils.model_evaluation import evaluate_model
+from tensorflow.python.keras.models import Model, load_model
+from tensorflow.python.keras.callbacks import ModelCheckpoint
+
+from src.utils.clr_callback import CyclicLR
 
 IMAGE_SIZE = 64
+BATCH_SIZE = 32
 
 def main():
-    extractData()
-    clean_logs()
-    trained_model = train()
+    #extractData()
+    #clean_logs()
+    #trained_model = train()
+    trained_model = load_model('./model/weights.sign_rec-1.10-0.0031-0.0407.h5')
     test(trained_model)
+
 
 def createModel():
     image_size = IMAGE_SIZE
@@ -74,20 +84,23 @@ def train():
     seq =  SignRecognitionSequence('./data/train/ppm/signrecognition_data_train.csv',
                                   './data/train/ppm/',
                                   im_size=IMAGE_SIZE,
-                                  batch_size=32)
+                                  batch_size=BATCH_SIZE)
 
     X_valid = np.array([load_image(im) for im in seq.X_valid])
     y_valid = seq.y_valid
 
     tensor_board = TensorBoard(log_dir='logs', histogram_freq=0, write_graph=True, write_images=True)
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,
-                                  patience=5, min_lr=0.00001)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, min_lr=0.00001)
     early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.001, patience=10, verbose=1, mode='auto', baseline=None, restore_best_weights=True)
 
+    #clr_triangular = CyclicLR(mode='triangular', base_lr=4e-5, max_lr=3e-4, step_size=200)
+    save = ModelCheckpoint('./model/weights.sign_rec-1.{epoch:02d}-{loss:.4f}-{val_loss:.4f}.h5', period=10, verbose=1)
     callbacks = [
         #tf.keras.callbacks.ModelCheckpoint('models/my_model.h5', verbose=1,save_best_only=True),
         tensor_board,
         reduce_lr,
+        #clr_triangular,
+        save,
         early_stopping
     ]
 
@@ -102,11 +115,12 @@ def train():
                         validation_data=(X_valid,y_valid))
     return model
 
-
 def test(model):
     class SignRecognitionTestSet():
         def __init__(self,df_path,data_path):
             self.df = pd.read_csv(df_path,sep=';')
+            self.label_names = self.df.ClassId.unique()
+            self.label_names.sort()
             self.labels = to_categorical(self.df['ClassId'].tolist())
             self.image_list = self.df['Filename'].apply(lambda x: os.path.join(data_path,x)).tolist()
             self.test_images = np.array([load_image(im) for im in self.image_list])
@@ -117,6 +131,10 @@ def test(model):
     print("Performing test...")
 
     model.evaluate(test_set.test_images,test_set.labels, verbose=1)[1]
+
+
+    evaluate_model(test_set.test_images, test_set.labels, test_set.label_names, model, batch_size=32)
+
 
 if __name__ == '__main__':
     main()

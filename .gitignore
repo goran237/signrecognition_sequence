@@ -3,6 +3,8 @@ src/utils/data/GTSRB
 src/data/
 src/logs/
 src/model/
+src/confusion_matrix/
+src/model_evaluation/
 
 # ignore logs
 *.txt
